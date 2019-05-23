@@ -109,12 +109,11 @@ int main(int argc, char** argv)
 			Point( erosion_size, erosion_size ) );
 
 			erode( required, required , element );
-			erosion_size=2;
 			// dilate( required, required , element );//Dilate on Required to output Required with element 'element'
 			dilate( required, required , element );
-			// dilate( required, required , element );
-			// dilate( required, required , element );
-			// dilate( required, required , element );
+			dilate( required, required , element );
+			dilate( required, required , element );
+			dilate( required, required , element );
 			// dilate( required, required , element );
 			
 			
