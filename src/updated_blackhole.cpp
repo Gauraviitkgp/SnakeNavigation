@@ -152,14 +152,22 @@ int main(int argc, char** argv)
 		while(1)
 		{
 			static int i=0; //Counter
-			Mat img;
 			cap >> img; //Store Videocapture output on img
 			Mat required, p0,high_pr,black_th;
-			cvtColor(img, hsv_img, COLOR_BGR2HSV_FULL);
+			// cvtColor(img, hsv_img, COLOR_BGR2HSV_FULL);
 
-			inRange(hsv_img,Scalar(h_r-ht_r,s_r-st_r,0), Scalar(h_r+ht_r,s_r+st_r,255),red_thr);
-			inRange(img,Scalar(r_w-rt_w,g_w-gt_w,b_w-bt_w), Scalar(r_w+rt_w,g_w+gt_w,b_w+bt_w),white_thr);
-			inRange(img,Scalar(r_b-rt_b,g_b-gt_b,b_b-bt_b), Scalar(r_b+rt_b,g_b+gt_b,b_b+bt_b),black_thr);
+			img_corrected = Mat(img.rows, img.cols, img.type());
+			double alpha_value = alpha / 100.0;
+		    int beta_value = beta - 100;
+		    basicLinearTransform(alpha_value, beta_value);
+		    cvtColor(img_corrected, hsv_img, COLOR_BGR2HSV_FULL); 
+		    GaussianBlur( img_corrected, img_corrected, Size(3, 3), 2, 2 );//Applying Gaussian Blur of parameter 1,1
+		    GaussianBlur( img_corrected, img_corrected, Size(3, 3), 2, 2 );//Applying Gaussian Blur of parameter 1,1
+
+
+			inRange(hsv_img,Scalar(h_r-ht_r,s_r-st_r,0), Scalar(h_r+ht_r,s_r+st_r,255),red_thr);//Thresholding, 1 if value lie between [(h_r-ht_r,s_r-st_r,0),(h_r+ht_r,s_r+st_r,255)] else 0.                  ,
+			inRange(img_corrected,Scalar(r_w-rt_w,g_w-gt_w,b_w-bt_w), Scalar(r_w+rt_w,g_w+gt_w,b_w+bt_w),white_thr);
+			inRange(img_corrected,Scalar(r_b-rt_b,g_b-gt_b,b_b-bt_b), Scalar(r_b+rt_b,g_b+gt_b,b_b+bt_b),black_thr);
 
 			bitwise_or(red_thr,white_thr,p0);
 			bitwise_not(p0, high_pr);
@@ -173,14 +181,12 @@ int main(int argc, char** argv)
 			Size( 2*erosion_size + 1, 2*erosion_size+1 ),
 			Point( erosion_size, erosion_size ) );
 
-			// erode( required, required , element );
+			erode( required, required , element );
+			// dilate( required, required , element );//Dilate on Required to output Required with element 'element'
 			dilate( required, required , element );
 			dilate( required, required , element );
 			dilate( required, required , element );
 			dilate( required, required , element );
-			dilate( required, required , element );
-			dilate( required, required , element );
-			GaussianBlur( required, required, Size(1, 1), 2, 2 );
 
 			namedWindow("hsv_img", WINDOW_NORMAL );
 			namedWindow("red_thr", WINDOW_NORMAL );
@@ -197,6 +203,7 @@ int main(int argc, char** argv)
 			imshow("p0"			,p0  		);
 			imshow("high_pr"	,high_pr  	);			
 			imshow("required"	,required  	);
+			imshow("MAINIM"		,img);
 			// imwrite("../vid_output/hsv_img"+name.substr(9,10)+".jpg",hsv_img	);
 			// imwrite("../vid_output/red_thr"+name.substr(9,10)+".jpg"	,red_thr 	);
 			// imwrite("../vid_output/black_thr"+name.substr(9,10)+".jpg"	,black_thr  );
